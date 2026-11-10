@@ -1,0 +1,14 @@
+HackMaster · Habilidades y conjuntos (web estática)
+===================================================
+USO LOCAL: abre index.html con doble clic (no necesita servidor ni internet).
+
+PUBLICAR GRATIS (para tus amigos):
+  - GitHub Pages, Cloudflare Pages o Netlify: sube esta carpeta tal cual
+    y comparte el enlace. Nadie necesita cuenta para verla.
+  - Si no quieres que sea pública, Cloudflare Access / Netlify con contraseña
+    permiten restringirla al grupo (recomendado por los derechos de autor).
+
+ACTUALIZAR LOS DATOS cuando cambies el Excel:
+  1. Exporta cada pestaña a CSV UTF-8 (Habilidades, Conjuntos de habilidades, Dudas).
+  2. Ejecuta:  python3 build_data.py Habilidades.csv Conjuntos.csv Dudas.csv Descripciones.csv > data.js
+  3. Vuelve a subir data.js. El resto de archivos no cambia.

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HackMaster · Habilidades y conjuntos</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>⚔ HackMaster 4e <span>Habilidades y conjuntos</span></h1>
+  <nav id="tabs">
+    <button data-tab="hab" class="on">Habilidades</button>
+    <button data-tab="des">Descripciones</button>
+    <button data-tab="con">Conjuntos</button>
+    <button data-tab="cre">Creador de conjuntos</button>
+    <button data-tab="dud">Dudas y notas</button>
+  </nav>
+  <button id="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+</header>
+<main>
+<section id="hab">
+  <div class="filters">
+    <input id="q" type="search" placeholder="Buscar habilidad (español o inglés)…" autofocus>
+    <select id="f-tipo"><option value="">Todos los tipos</option></select>
+    <select id="f-libro"><option value="">Todos los libros</option></select>
+    <select id="f-clase"><option value="">Cualquier clase</option></select>
+    <label>Precio ≤ <input id="f-precio" type="number" min="0" step="50" placeholder="—"></label>
+    <label>Dificultad ≤ <input id="f-dif" type="number" step="5" placeholder="—"></label>
+    <button id="reset" class="ghost">Limpiar</button>
+  </div>
+  <div id="chips" class="chips"></div>
+  <div class="count" id="count"></div>
+  <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<section id="des" hidden>
+  <p class="help">Resumen en castellano de cada habilidad (redactado con palabras propias a partir de los manuales; no es el texto literal). Consulta siempre el libro indicado para la regla completa.</p>
+  <div class="filters"><input id="qd" type="search" placeholder="Buscar en nombre y descripción…"></div>
+  <div class="count" id="dcount"></div>
+  <div id="deslist"></div>
+</section>
+
+<section id="con" hidden>
+  <div class="filters"><input id="qc" type="search" placeholder="Buscar conjunto…"></div>
+  <div id="conlist"></div>
+</section>
+
+<section id="cre" hidden>
+  <p class="help">Reglas del HJ 4.05: máximo 5 habilidades por conjunto, <b>los requisitos cuentan</b> dentro de las 5. PC = suma − 1; precio del curso = suma × 1,1; dificultad = la mayor + 5; característica = la más frecuente; dado = media redondeada a la baja al dado existente.</p>
+  <div class="filters">
+    <input id="qs" type="search" placeholder="Añadir habilidad…" autocomplete="off">
+    <label class="inline"><input type="checkbox" id="autoreq" checked> Añadir requisitos automáticamente</label>
+    <button id="clear" class="ghost">Vaciar</button>
+  </div>
+  <ul id="sugg" class="sugg" hidden></ul>
+  <div id="builder"></div>
+</section>
+
+<section id="dud" hidden>
+  <div id="dudlist"></div>
+  <h3>Cómo se ha hecho</h3>
+  <ul class="notes">
+    <li>Prioridad de fuentes: manuales extendidos (CG, GrG, SSG, ZG…) sobre el Manual del Jugador; manuales sobre el Excel original; castellano sobre inglés.</li>
+    <li>«MJ» = Manual del Jugador en castellano (páginas impresas). El resto de libros conserva su acrónimo original.</li>
+    <li>Dado «*» = tarea automática. «NA» = no aplica.</li>
+    <li>Clase = una clase concreta (p. ej. «Ladrón (clase)»). Grupo = el grupo de clases (p. ej. «Grupo de ladrones»).</li>
+  </ul>
+</section>
+</main>
+<aside id="drawer" hidden></aside>
+<footer>Material de ayuda para partidas privadas. HackMaster es marca de sus propietarios; consulta los manuales para el texto completo de las reglas.</footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
