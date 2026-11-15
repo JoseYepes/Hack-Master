@@ -14,22 +14,28 @@
     <button data-tab="des">Descripciones</button>
     <button data-tab="con">Conjuntos</button>
     <button data-tab="cre">Creador de conjuntos</button>
-    <button data-tab="dud">Dudas y notas</button>
+    <button data-tab="glo">Glosario</button>
   </nav>
   <button id="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
 </header>
 <main>
 <section id="hab">
-  <div class="filters">
+  <div class="searchbar">
     <input id="q" type="search" placeholder="Buscar habilidad (español o inglés)…" autofocus>
-    <select id="f-tipo"><option value="">Todos los tipos</option></select>
-    <select id="f-libro"><option value="">Todos los libros</option></select>
-    <select id="f-clase"><option value="">Cualquier clase</option></select>
-    <label>Precio ≤ <input id="f-precio" type="number" min="0" step="50" placeholder="—"></label>
-    <label>Dificultad ≤ <input id="f-dif" type="number" step="5" placeholder="—"></label>
-    <button id="reset" class="ghost">Limpiar</button>
+    <button id="filtbtn" class="ghost" aria-expanded="false">Filtros ▼</button>
   </div>
-  <div id="chips" class="chips"></div>
+  <div id="filtpanel" class="filtpanel">
+    <div class="fgrid">
+      <label>Tipo<select id="f-tipo"><option value="">Todos</option></select></label>
+      <label>Libro<select id="f-libro"><option value="">Todos</option></select></label>
+      <label>Clase<select id="f-clase"><option value="">Cualquiera</option></select></label>
+      <label>Precio ≤ <input id="f-precio" type="number" min="0" step="50" placeholder="—" inputmode="numeric"></label>
+      <label>Dificultad ≤ <input id="f-dif" type="number" step="5" placeholder="—" inputmode="numeric"></label>
+    </div>
+    <div id="chips" class="chips"></div>
+    <div class="frow"><button id="reset" class="ghost">Limpiar filtros</button></div>
+  </div>
+  <div class="sortbar"><label>Ordenar por <select id="sortsel"></select></label><button id="sortdir" class="ghost" aria-label="Invertir orden">↑</button></div>
   <div class="count" id="count"></div>
   <div class="tablewrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
 </section>
@@ -57,16 +63,21 @@
   <div id="builder"></div>
 </section>
 
-<section id="dud" hidden>
-  <div id="dudlist"></div>
-  <h3>Cómo se ha hecho</h3>
-  <ul class="notes">
-    <li>Prioridad de fuentes: manuales extendidos (CG, GrG, SSG, ZG…) sobre el Manual del Jugador; manuales sobre el Excel original; castellano sobre inglés.</li>
-    <li>«MJ» = Manual del Jugador en castellano (páginas impresas). El resto de libros conserva su acrónimo original.</li>
-    <li>Dado «*» = tarea automática. «NA» = no aplica.</li>
-    <li>Clase = una clase concreta (p. ej. «Ladrón (clase)»). Grupo = el grupo de clases (p. ej. «Grupo de ladrones»).</li>
-  </ul>
+<section id="glo" hidden>
+  <p class="help">La columna «Página» indica libro y página (p. ej. «MJ 319»); aquí están las siglas. En el MJ son las páginas impresas. Si una habilidad aparece en más de un libro se muestran separados por «/». Prioridad de fuentes: los suplementos mandan sobre el Manual del Jugador, los manuales sobre el Excel original y el castellano sobre el inglés. Los nombres en castellano de los suplementos son orientativos.</p>
+  <div id="glos" class="tablewrap"></div>
+  <h3>Otras abreviaturas</h3>
+  <dl class="leg">
+    <dt>PC</dt><dd>Puntos de construcción que cuesta la habilidad.</dd>
+    <dt>Car.</dt><dd>Característica(s) en las que se basa: FUE, DES, CON, INT, SAB, CAR.</dd>
+    <dt>Dado</dt><dd>Dado de maestría (d4 a d20). «*» = tarea automática; «NA» = no aplica.</dd>
+    <dt>Requisito</dt><dd>Habilidades previas. «N» = ninguno. Las que llevan un % exigen ese nivel mínimo.</dd>
+    <dt>Precio</dt><dd>Coste del curso en piezas de oro (po).</dd>
+    <dt>Dif.</dt><dd>Dificultad: modificador porcentual de la tirada.</dd>
+    <dt>Clases</dt><dd>«Todas», una clase concreta (p. ej. «Ladrón (clase)») o un grupo (p. ej. «Grupo de ladrones»).</dd>
+  </dl>
 </section>
+
 </main>
 <aside id="drawer" hidden></aside>
 <footer>Material de ayuda para partidas privadas. HackMaster es marca de sus propietarios; consulta los manuales para el texto completo de las reglas.</footer>
