@@ -174,6 +174,37 @@ $('#qd').addEventListener('input',renderDes);renderDes();
 /* ---------- glosario ---------- */
 $('#glos').innerHTML=`<table class="gt"><thead><tr><th>Sigla</th><th>Libro</th><th>Notas</th><th>Habilidades</th></tr></thead><tbody>`+GLOS.map(g=>`<tr><td><b>${esc(g[0])}</b></td><td>${esc(g[1])}</td><td>${esc(g[2])}</td><td class="num" data-l="Habilidades con este libro">${skills.filter(s=>s.refs.some(r=>r.b===g[0])).length||'—'}</td></tr>`).join('')+`</tbody></table>`;
 
+/* ---------- guía: tareas, reglas de la calle y procedimientos ---------- */
+(function(){
+  const G=window.GUIA;
+  if(!G){$('#guialist').innerHTML='<p class="warn">Falta guia.js. Genéralo con build_guia.py (ver LEEME.txt).</p>';return}
+  $('#gtoc').innerHTML=G.grupos.map(g=>`<div class="gtg"><b>${esc(g.t)}</b>${g.items.map(i=>`<a class="chip" href="#g-${i.id}">${esc(i.t)}</a>`).join('')}</div>`).join('');
+  $('#guialist').innerHTML=G.grupos.map(g=>`<div class="ggrp"><h2 class="gh">${esc(g.t)}</h2>${g.intro?`<div class="gbody gintro">${g.intro}</div>`:''}`+
+    g.items.map(i=>`<details class="card gcard" id="g-${i.id}"><summary><b>${esc(i.t)}</b></summary><div class="body gbody">${i.html||'<p class="help">Apartado pendiente de redactar en la guía.</p>'}</div></details>`).join('')+'</div>').join('');
+  const cards=$$('#guialist .gcard');cards.forEach(c=>c._h=norm(c.textContent));
+  const total=cards.length,allBtn=$('#gall');
+  const updAll=()=>{allBtn.textContent=cards.some(c=>!c.hidden&&!c.open)?'Desplegar todo':'Plegar todo'};
+  function renderGuia(){
+    const q=norm($('#qg').value).trim(),ws=q.split(/\s+/).filter(Boolean);let n=0;
+    cards.forEach(c=>{const ok=ws.every(w=>c._h.includes(w));c.hidden=!ok;if(ok)n++;if(q.length>1)c.open=ok});
+    $$('#guialist .ggrp').forEach(g=>g.hidden=![...g.querySelectorAll('.gcard')].some(c=>!c.hidden));
+    $('#gtoc').hidden=!!q;
+    $('#gcount').textContent=q?`${n} de ${total} apartados contienen «${$('#qg').value.trim()}»`:`${total} apartados`;
+    updAll();
+  }
+  $('#qg').addEventListener('input',renderGuia);
+  allBtn.onclick=()=>{const abrir=cards.some(c=>!c.hidden&&!c.open);cards.forEach(c=>{if(!c.hidden)c.open=abrir});updAll()};
+  cards.forEach(c=>c.addEventListener('toggle',updAll));
+  function go(id){const c=document.getElementById(id);if(!c||!c.classList.contains('gcard'))return false;
+    if(c.hidden){$('#qg').value='';renderGuia()}
+    tab('gui');c.open=true;setTimeout(()=>c.scrollIntoView({behavior:'smooth',block:'start'}),30);return true}
+  $('#gtoc').addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();const id=a.getAttribute('href').slice(1);if(go(id))try{history.replaceState(null,'','#'+id)}catch(x){}});
+  $('#guialist').addEventListener('click',e=>{if(e.target.tagName==='IMG')window.open(e.target.src,'_blank')});
+  renderGuia();
+  const h=decodeURIComponent(location.hash.slice(1));
+  if(h==='gui'||h==='dow')tab(h);else if(h.indexOf('g-')===0)go(h);
+})();
+
 
 renderTbl();renderBuilder();
 })();

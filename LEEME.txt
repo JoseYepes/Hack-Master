@@ -12,3 +12,12 @@ ACTUALIZAR LOS DATOS cuando cambies el Excel:
   1. Exporta cada pestaña a CSV UTF-8 (Habilidades, Conjuntos de habilidades, Dudas).
   2. Ejecuta:  python3 build_data.py Habilidades.csv Conjuntos.csv Dudas.csv Descripciones.csv > data.js
   3. Vuelve a subir data.js. El resto de archivos no cambia.
+
+ACTUALIZAR LA GUÍA (pestaña «Guía»: tareas, reglas de la calle y procedimientos):
+  1. Ejecuta:  python3 build_guia.py "D:/Almacenamiento/ROL/HackMaster/HackreglamentoLocal.docx"
+     (necesita pandoc; para las tablas guardadas como EMF, además LibreOffice y Poppler).
+  2. Vuelve a subir guia.js y la carpeta guia/.
+
+DESCARGAS (pestaña «Descargas»): los PDF están en descargas/.
+  Cada PDF tiene su bloque <div class="dl"> en index.html (sección id="dow"). Si añades, quitas o renombras
+  un PDF, cambia también ahí el nombre del archivo (en los enlaces, los espacios y paréntesis van codificados: %20, %28, %29).

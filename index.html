@@ -15,6 +15,8 @@
     <button data-tab="con">Conjuntos</button>
     <button data-tab="cre">Creador de conjuntos</button>
     <button data-tab="glo">Glosario</button>
+    <button data-tab="gui">Guía</button>
+    <button data-tab="dow">Descargas</button>
   </nav>
   <button id="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
 </header>
@@ -78,10 +80,51 @@
   </dl>
 </section>
 
+<section id="gui" hidden>
+  <p class="help">Tareas, reglas de la calle y procedimientos de la Hackguía del grupo: cómo se resuelve cada cosa en mesa y qué habilidades intervienen. Pulsa un apartado para desplegarlo; las tablas se amplían al pulsarlas.</p>
+  <div class="filters"><input id="qg" type="search" placeholder="Buscar en la guía…"><button id="gall" class="ghost">Desplegar todo</button></div>
+  <div class="count" id="gcount"></div>
+  <div id="gtoc" class="gtoc"></div>
+  <div id="guialist"></div>
+</section>
+
+<section id="dow" hidden>
+  <p class="help">Hojas y libros de pejota listos para imprimir.</p>
+  <div class="dl">
+    <div class="dlinfo">
+      <h2>Libro de pejota 3.0 (castellano)</h2>
+      <p>El Player Character Record Book 3.0 completo traducido al castellano, con su portada.</p>
+      <p><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0%20%28ES%29.pdf" target="_blank" rel="noopener">Abrir</a><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0%20%28ES%29.pdf" download="Player Character Record Book 3.0 (ES).pdf">⬇ Descargar PDF</a> <span class="stat">PDF · 21 páginas · 6,8 MB</span></p>
+    </div>
+  </div>
+  <div class="dl">
+    <div class="dlinfo">
+      <h2>Libro de pejota 3.0 (castellano, portada en blanco)</h2>
+      <p>La misma traducción con la portada en blanco; pesa mucho menos.</p>
+      <p><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0%20%28ES%2C%20portada%20en%20blanco%29.pdf" target="_blank" rel="noopener">Abrir</a><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0%20%28ES%2C%20portada%20en%20blanco%29.pdf" download="Player Character Record Book 3.0 (ES, portada en blanco).pdf">⬇ Descargar PDF</a> <span class="stat">PDF · 21 páginas · 0,8 MB</span></p>
+    </div>
+  </div>
+  <div class="dl">
+    <div class="dlinfo">
+      <h2>Player Character Record Book 3.0 (inglés)</h2>
+      <p>El libro de pejota original en inglés.</p>
+      <p><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0.pdf" target="_blank" rel="noopener">Abrir</a><a class="btn" href="descargas/Player%20Character%20Record%20Book%203.0.pdf" download="Player Character Record Book 3.0.pdf">⬇ Descargar PDF</a> <span class="stat">PDF · 21 páginas · 1,9 MB</span></p>
+    </div>
+  </div>
+  <div class="dl">
+    <div class="dlinfo">
+      <h2>Hoja de personaje</h2>
+      <p>Hoja de personaje básica en dos páginas.</p>
+      <p><a class="btn" href="descargas/HackMaster%20-%20Hoja%20De%20Personaje.pdf" target="_blank" rel="noopener">Abrir</a><a class="btn" href="descargas/HackMaster%20-%20Hoja%20De%20Personaje.pdf" download="HackMaster - Hoja De Personaje.pdf">⬇ Descargar PDF</a> <span class="stat">PDF · 2 páginas · 33 KB</span></p>
+    </div>
+  </div>
+</section>
+
 </main>
 <aside id="drawer" hidden></aside>
 <footer>Material de ayuda para partidas privadas. HackMaster es marca de sus propietarios; consulta los manuales para el texto completo de las reglas.</footer>
 <script src="data.js"></script>
+<script src="guia.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
