@@ -111,12 +111,20 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[data-sk]');if(
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 
 /* ---------- conjuntos ---------- */
+const dieTxt=d=>d==='*'||d==='NA'?esc(d):(d===''||d==null?'—':'d'+esc(d));
+const statRow=(name,o)=>`<tr><td class="n">${name}</td><td class="num" data-l="PC">${esc(o.pc)}</td><td data-l="Car.">${esc(o.car)}</td><td class="num" data-l="Dado">${dieTxt(o.die)}</td><td data-l="Requisito">${esc(o.req||'')}</td><td class="num" data-l="Precio">${typeof o.precio==='number'?o.precio.toLocaleString('es-ES'):esc(o.precio||'—')}</td><td class="num" data-l="Dif.">${esc(o.dif==null?'':o.dif)}</td></tr>`;
+// fila desglosada de una habilidad (o de un conjunto incluido dentro de otro), como en el Excel
+function compRow(n,self,txt){
+  const s=findSkill(n);if(s)return statRow(link(s,txt),s);
+  const o=suiteByN.get(norm(n));if(o&&o!==self)return statRow(esc(txt||o.n)+' <span class="tag">conjunto</span>',o);
+  return `<tr><td class="n">${esc(txt||n)}</td><td colspan="6" class="stat">${txt?'':'No está en la lista de habilidades'}</td></tr>`}
+const compTable=rows=>`<div class="tablewrap"><table class="gt ct"><thead><tr><th>Habilidad</th><th>PC</th><th>Car.</th><th>Dado</th><th>Requisito</th><th>Precio</th><th>Dif.</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 function suiteCard(c,kind){
-  const comps=(c.comp||[]).map(n=>{const s=findSkill(n);if(s)return link(s,n);const o=suiteByN.get(norm(n));return `<span class="tag">${esc(n)}${o?' (conjunto)':''}</span>`}).join(' · ');
-  const rq=c.req?parseReq(c.req).map(r=>r.s?link(r.s,r.t):esc(r.t)).join(', ')||esc(c.req):'';
-  return `<details class="card" data-n="${esc(norm(c.n+' '+(c.comp||[]).join(' ')))}"><summary><b>${esc(c.n)}</b><span class="stat">PC <strong>${esc(c.pc)}</strong> · ${esc(c.car)} · ${c.die==='*'||c.die==='NA'?esc(c.die):'d'+esc(c.die)} · <strong>${typeof c.precio==='number'?c.precio:esc(c.precio||'—')}</strong> po · dif ${esc(c.dif==null?'':c.dif)}</span><span class="tag">${esc(c.libro)}</span></summary>
-  <div class="body">${comps?`<p><b>Habilidades:</b> ${comps}</p>`:''}${rq&&kind!=='mine'?`<p><b>Requisito:</b> ${rq}</p>`:''}${c.clases?`<p class="stat">Clases: ${esc(c.clases)}</p>`:''}</div></details>`}
-$('#conlist').innerHTML='<h3>Conjuntos del grupo (HJ 4.05)</h3>'+D.conjuntos.map(c=>suiteCard(c,'mine')).join('')+'<h3>Conjuntos oficiales</h3>'+D.oficiales.map(c=>suiteCard(c,'of')).join('')+'<h3>Estilos de combate</h3>'+D.estilos.map(c=>suiteCard(c,'st')).join('');
+  const st=kind==='st';
+  const rows=st?parseReq(c.req).map(r=>compRow(r.t,c,r.t)).join(''):(c.comp||[]).map(n=>compRow(n,c)).join('');
+  return `<details class="card" data-n="${esc(norm(c.n+' '+(c.comp||[]).join(' ')+(st?' '+c.req:'')))}"><summary><b>${esc(c.n)}</b><span class="stat">${st?'':`PC <strong>${esc(c.pc)}</strong> · `}${esc(c.car)} · ${dieTxt(c.die)} · <strong>${typeof c.precio==='number'?c.precio.toLocaleString('es-ES'):esc(c.precio||'—')}</strong> po · dif ${esc(c.dif===''||c.dif==null?'—':c.dif)}</span>${st?`<span class="tag">${esc(c.libro)}</span>`:''}</summary>
+  <div class="body">${rows?(st?'<p class="stat">Requisitos del estilo:</p>':'')+compTable(rows):'<p class="help">Sin requisitos.</p>'}${c.clases?`<p class="stat">Clases: ${esc(c.clases)}</p>`:''}</div></details>`}
+$('#conlist').innerHTML='<h3>Conjuntos del grupo</h3>'+D.conjuntos.map(c=>suiteCard(c,'mine')).join('')+'<h3>Conjuntos oficiales</h3>'+D.oficiales.filter(c=>(c.comp||[]).length).map(c=>suiteCard(c,'of')).join('')+'<h3>Estilos de combate</h3>'+D.estilos.map(c=>suiteCard(c,'st')).join('');
 $('#qc').addEventListener('input',e=>{const q=norm(e.target.value).split(/\s+/).filter(Boolean);$$('#conlist .card').forEach(c=>c.hidden=!q.every(w=>c.dataset.n.includes(w)))});
 
 /* ---------- creador ---------- */

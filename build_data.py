@@ -2,7 +2,7 @@
 """Genera data.js a partir de los CSV exportados del Excel (una pestaña por CSV).
 Uso: python3 build_data.py Habilidades.csv Conjuntos.csv Dudas.csv Descripciones.csv > data.js
 (Exporta cada pestaña a CSV UTF-8 desde Excel/LibreOffice.)"""
-import csv, json, sys
+import csv, json, os, sys
 hab, con, dud = sys.argv[1:4]
 des = sys.argv[4] if len(sys.argv)>4 else None
 def num(x):
@@ -34,4 +34,10 @@ while i<len(C):
     i+=1
 D=[dict(n=r[0],fuente=r[1],duda=r[2],hecho=r[3]) for r in list(csv.reader(open(dud,encoding='utf-8')))[1:] if r and r[0]]
 DESC=[dict(n=r[0],libro=r[1],d=r[2],t=r[3] if len(r)>3 else '') for r in list(csv.reader(open(des,encoding='utf-8')))[1:] if r and r[0]] if des else []
+# habilidades que componen los conjuntos oficiales (componentes.json, junto a este script)
+_cj=os.path.join(os.path.dirname(os.path.abspath(__file__)),'componentes.json')
+if os.path.exists(_cj):
+    _c=json.load(open(_cj,encoding='utf-8'))
+    for o in oficiales:
+        if o['n'] in _c: o['comp']=_c[o['n']]
 print('window.DATA='+json.dumps(dict(descripciones=DESC,skills=skills,conjuntos=mine,oficiales=oficiales,estilos=estilos,dudas=D),ensure_ascii=False)+';')

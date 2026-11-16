@@ -111,3 +111,5 @@ abbr{text-decoration:underline dotted;cursor:help}
 .dlinfo{flex:1;min-width:240px}.dlinfo h2{margin:0 0 6px;font-size:18px}.dlinfo p{margin:.5em 0}
 .btn{display:inline-block;background:var(--ac);color:#fff;text-decoration:none;padding:8px 14px;border-radius:6px;margin-right:8px}
 @media(max-width:720px){.gtg b{min-width:100%}.dlprev img{width:120px}}
+.card .tablewrap{margin:4px 0 8px}.ct tbody tr{cursor:default}.ct th{position:static;cursor:default}
+@media(max-width:720px){.ct td[data-l]{display:inline-block;margin-right:12px}.ct td[data-l="Requisito"]{display:block}}

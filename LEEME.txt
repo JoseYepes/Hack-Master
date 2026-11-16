@@ -1,5 +1,5 @@
-HackMaster · Habilidades y conjuntos (web estática)
-===================================================
+HackMaster 4e · Compendio del grupo (web estática)
+==================================================
 USO LOCAL: abre index.html con doble clic (no necesita servidor ni internet).
 
 PUBLICAR GRATIS (para tus amigos):
@@ -12,6 +12,8 @@ ACTUALIZAR LOS DATOS cuando cambies el Excel:
   1. Exporta cada pestaña a CSV UTF-8 (Habilidades, Conjuntos de habilidades, Dudas).
   2. Ejecuta:  python3 build_data.py Habilidades.csv Conjuntos.csv Dudas.csv Descripciones.csv > data.js
   3. Vuelve a subir data.js. El resto de archivos no cambia.
+  Las habilidades que componen los conjuntos oficiales están en componentes.json
+  (build_data.py las añade solo; edítalo si quieres corregir alguna).
 
 ACTUALIZAR LA GUÍA (pestaña «Guía»: tareas, reglas de la calle y procedimientos):
   1. Ejecuta:  python3 build_guia.py "D:/Almacenamiento/ROL/HackMaster/HackreglamentoLocal.docx"
