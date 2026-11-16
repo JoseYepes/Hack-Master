@@ -10,17 +10,15 @@
 <header>
   <h1>⚔ HackMaster 4e <span>Compendio del grupo</span></h1>
   <nav id="tabs">
-    <button data-tab="hab" class="on">Habilidades</button>
-    <button data-tab="des">Descripciones</button>
-    <button data-tab="con">Conjuntos</button>
-    <button data-tab="cre">Creador de conjuntos</button>
-    <button data-tab="glo">Glosario</button>
-    <button data-tab="gui">Guía</button>
-    <button data-tab="dow">Descargas</button>
+    <button data-grp="hab" class="on">Habilidades</button>
+    <button data-grp="con">Conjuntos</button>
+    <button data-grp="gui">Guía</button>
+    <button data-grp="dow">Descargas</button>
   </nav>
   <button id="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
 </header>
 <main>
+<div id="subtabs" class="subtabs"></div>
 <section id="hab">
   <div class="searchbar">
     <input id="q" type="search" placeholder="Buscar habilidad (español o inglés)…" autofocus>
@@ -35,6 +33,7 @@
       <label>Dificultad ≤ <input id="f-dif" type="number" step="5" placeholder="—" inputmode="numeric"></label>
     </div>
     <div id="chips" class="chips"></div>
+    <div class="frow"><label class="inline" id="l-todas" hidden><input type="checkbox" id="f-todas"> Incluir también las abiertas a todas las clases</label></div>
     <div class="frow"><button id="reset" class="ghost">Limpiar filtros</button></div>
   </div>
   <div class="sortbar"><label>Ordenar por <select id="sortsel"></select></label><button id="sortdir" class="ghost" aria-label="Invertir orden">↑</button></div>

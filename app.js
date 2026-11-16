@@ -39,6 +39,7 @@ const pagCell=s=>s.refs.map(r=>`<abbr title="${esc(bookTip(r.b))}">${esc(r.b)}</
 skills.forEach(s=>{s.refs=refs(s.libro);s.pag=parseFloat((s.refs[0]&&s.refs[0].p)||'')||0;s.ref=s.refs.map(r=>r.b).join('/')+'|'+String(s.pag).padStart(5,'0')});
 const tokens=c=>String(c||'').split(/,\s*/).map(x=>x.trim()).filter(Boolean);
 const link=(s,txt)=>`<a class="lnk" data-sk="${s.i}">${esc(txt||s.n)}</a>`;
+const pct=v=>typeof v==='number'?(v>0?'+':'')+v+'%':(v===''||v==null?'—':esc(v));
 const money=v=>typeof v==='number'?v.toLocaleString('es-ES')+' po':(v||'—');
 
 const setHH=()=>document.documentElement.style.setProperty('--hh',document.querySelector('header').offsetHeight+'px');
@@ -46,11 +47,20 @@ addEventListener('resize',setHH);addEventListener('load',setHH);setHH();
 /* ---------- tema y pestañas ---------- */
 try{const t=localStorage.getItem('hm-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
 $('#theme').onclick=()=>{const d=document.documentElement,cur=d.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');d.dataset.theme=cur==='dark'?'light':'dark';try{localStorage.setItem('hm-theme',d.dataset.theme)}catch(e){}};
-function tab(id){setTimeout(setHH,0);$$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===id));$$('main>section').forEach(s=>s.hidden=s.id!==id);closeDrawer()}
-$$('#tabs button').forEach(b=>b.onclick=()=>tab(b.dataset.tab));
+const GROUPS={hab:[['hab','Lista'],['des','Descripciones'],['glo','Glosario y siglas']],con:[['con','Conjuntos'],['cre','Creador de conjuntos']],gui:[['gui','Guía']],dow:[['dow','Descargas']]};
+const grpOf=id=>Object.keys(GROUPS).find(g=>GROUPS[g].some(t=>t[0]===id))||'hab';
+const lastSub={};
+function tab(id){setTimeout(setHH,0);const g=grpOf(id);lastSub[g]=id;
+  $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.grp===g));
+  $('#subtabs').innerHTML=GROUPS[g].length>1?GROUPS[g].map(t=>`<button data-tab="${t[0]}" class="${t[0]===id?'on':''}">${t[1]}</button>`).join(''):'';
+  $$('main>section').forEach(s=>s.hidden=s.id!==id);closeDrawer()}
+$$('#tabs button').forEach(b=>b.onclick=()=>tab(lastSub[b.dataset.grp]||GROUPS[b.dataset.grp][0][0]));
+$('#subtabs').onclick=e=>{const b=e.target.closest('button');if(b)tab(b.dataset.tab)};
 
 /* ---------- habilidades ---------- */
-const st={q:'',tipo:'',libro:'',clase:'',precio:null,dif:null,cars:new Set(),sort:'n',desc:false};
+// una clase también puede estudiar lo de su grupo
+const CLGRP={'Guerrero (clase)':'Grupo de guerreros','Bárbaro (clase)':'Grupo de guerreros','Ladrón (clase)':'Grupo de ladrones','Grupo de magos (Sindicato de Adivinos)':'Grupo de magos'};
+const st={todas:false,q:'',tipo:'',libro:'',clase:'',precio:null,dif:null,cars:new Set(),sort:'n',desc:false};
 const uniq=a=>[...new Set(a)].sort((x,y)=>x.localeCompare(y,'es'));
 uniq(skills.map(s=>s.tipo).filter(Boolean)).forEach(v=>$('#f-tipo').add(new Option(v,v)));
 uniq(skills.flatMap(s=>acr(s.libro))).forEach(v=>$('#f-libro').add(new Option(v+(GLm.has(v)?' — '+GLm.get(v)[1]:''),v)));
@@ -65,8 +75,9 @@ $('#sortdir').onclick=()=>{st.desc=!st.desc;renderTbl()};
 $$('#tbl th').forEach(th=>th.onclick=()=>{const k=th.dataset.k;st.desc=st.sort===k?!st.desc:false;st.sort=k;renderTbl()});
 const bind=(id,k,f=v=>v)=>$(id).addEventListener('input',e=>{st[k]=f(e.target.value);renderTbl()});
 bind('#q','q',norm);bind('#f-tipo','tipo');bind('#f-libro','libro');bind('#f-clase','clase');
+const updTodas=()=>{$('#l-todas').hidden=!st.clase};$('#f-clase').addEventListener('input',updTodas);$('#f-todas').onchange=e=>{st.todas=e.target.checked;renderTbl()};updTodas();
 bind('#f-precio','precio',v=>v===''?null:+v);bind('#f-dif','dif',v=>v===''?null:+v);
-$('#reset').onclick=()=>{Object.assign(st,{q:'',tipo:'',libro:'',clase:'',precio:null,dif:null});updFiltBadge();st.cars.clear();['#q','#f-tipo','#f-libro','#f-clase','#f-precio','#f-dif'].forEach(i=>$(i).value='');$$('#chips .chip').forEach(b=>b.classList.remove('on'));renderTbl()};
+$('#reset').onclick=()=>{Object.assign(st,{q:'',tipo:'',libro:'',clase:'',precio:null,dif:null});st.todas=false;$('#f-todas').checked=false;$('#l-todas').hidden=true;updFiltBadge();st.cars.clear();['#q','#f-tipo','#f-libro','#f-clase','#f-precio','#f-dif'].forEach(i=>$(i).value='');$$('#chips .chip').forEach(b=>b.classList.remove('on'));renderTbl()};
 const fp=$('#filtpanel');
 function activeFilters(){return (st.tipo?1:0)+(st.libro?1:0)+(st.clase?1:0)+(st.precio!=null?1:0)+(st.dif!=null?1:0)+st.cars.size}
 function updFiltBadge(){const n=activeFilters();$('#filtbtn').textContent='Filtros'+(n?' ('+n+')':'')+(fp.classList.contains('open')?' ▲':' ▼')}
@@ -75,7 +86,7 @@ function pass(s){
   if(st.q&&!st.q.split(/\s+/).every(w=>s.h.includes(w)))return false;
   if(st.tipo&&s.tipo!==st.tipo)return false;
   if(st.libro&&!acr(s.libro).includes(st.libro))return false;
-  if(st.clase&&!(s.clases==='Todas'||tokens(s.clases).includes(st.clase)))return false;
+  if(st.clase){const tk=tokens(s.clases);if(!(tk.includes(st.clase)||tk.includes(CLGRP[st.clase])||(st.todas&&s.clases==='Todas')))return false}
   if(st.precio!=null&&!(typeof s.precio==='number'&&s.precio<=st.precio))return false;
   if(st.dif!=null&&!(typeof s.dif==='number'&&s.dif<=st.dif))return false;
   if(st.cars.size&&![...st.cars].some(c=>s.car.includes(c)))return false;
@@ -89,7 +100,7 @@ function renderTbl(){
   $('#sortsel').value=st.sort;$('#sortdir').textContent=st.desc?'↓':'↑';
   $$('#tbl th').forEach(th=>{th.classList.toggle('s',th.dataset.k===st.sort);th.classList.toggle('d',th.dataset.k===st.sort&&st.desc)});
   const dd=s=>s.die==='*'||s.die==='NA'?esc(s.die):'d'+esc(s.die);
-  $('#tbl tbody').innerHTML=rows.map(s=>`<tr data-i="${s.i}"><td class="n">${esc(s.n)}</td><td data-l="Tipo" class="tp">${esc(s.tipo)}</td><td data-l="PC" class="num">${esc(s.pc)}</td><td data-l="Car.">${esc(s.car)}</td><td data-l="Dado" class="num">${dd(s)}</td><td data-l="Requisito" class="rq">${esc(s.req)}</td><td data-l="Precio" class="num">${typeof s.precio==='number'?s.precio+' po':esc(s.precio)}</td><td data-l="Dif." class="num">${esc(s.dif)}</td><td data-l="Página">${pagCell(s)}</td><td data-l="Clases" class="cl">${esc(s.clases)}</td></tr>`).join('');
+  $('#tbl tbody').innerHTML=rows.map(s=>`<tr data-i="${s.i}"><td class="n">${esc(s.n)}</td><td data-l="Tipo" class="tp">${esc(s.tipo)}</td><td data-l="PC" class="num">${esc(s.pc)}</td><td data-l="Car.">${esc(s.car)}</td><td data-l="Dado" class="num">${dd(s)}</td><td data-l="Requisito" class="rq">${esc(s.req)}</td><td data-l="Precio" class="num">${typeof s.precio==='number'?s.precio+' po':esc(s.precio)}</td><td data-l="Dif." class="num">${pct(s.dif)}</td><td data-l="Página">${pagCell(s)}</td><td data-l="Clases" class="cl">${esc(s.clases)}</td></tr>`).join('');
 }
 $('#tbl tbody').onclick=e=>{const tr=e.target.closest('tr');if(tr)openSkill(skills[+tr.dataset.i])};
 
@@ -101,7 +112,7 @@ function openSkill(s){
   const su=(inSuites.get(s.i)||[]).map(c=>`<span class="tag">${esc(c.n)}</span>`).join('');
   $('#drawer').innerHTML=`<button class="ghost x" id="close">✕</button><h2>${esc(s.n)}</h2><div class="stat">${esc(s.tipo)}</div>
   <dl><dt>PC</dt><dd>${esc(s.pc)}</dd><dt>Característica</dt><dd>${esc(s.car)}</dd><dt>Dado maestría</dt><dd>${s.die==='*'?'* (automática)':s.die==='NA'?'NA':'d'+esc(s.die)}</dd>
-  <dt>Requisito</dt><dd>${rq}</dd><dt>Precio curso</dt><dd>${money(s.precio)}</dd><dt>Dificultad</dt><dd>${esc(s.dif)}%</dd>
+  <dt>Requisito</dt><dd>${rq}</dd><dt>Precio curso</dt><dd>${money(s.precio)}</dd><dt>Dificultad</dt><dd>${pct(s.dif)}</dd>
   <dt>Página</dt><dd>${pagCell(s)}</dd><dt>Clases</dt><dd>${esc(s.clases)}</dd>
   ${rev?`<dt>Requisito de</dt><dd>${rev}</dd>`:''}${su?`<dt>En conjuntos</dt><dd>${su}</dd>`:''}</dl>
   <button class="ghost" id="todes">Ver descripción</button> <button class="ghost" id="tocre">Añadir al creador de conjuntos</button>`;
@@ -112,7 +123,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
 
 /* ---------- conjuntos ---------- */
 const dieTxt=d=>d==='*'||d==='NA'?esc(d):(d===''||d==null?'—':'d'+esc(d));
-const statRow=(name,o)=>`<tr><td class="n">${name}</td><td class="num" data-l="PC">${esc(o.pc)}</td><td data-l="Car.">${esc(o.car)}</td><td class="num" data-l="Dado">${dieTxt(o.die)}</td><td data-l="Requisito">${esc(o.req||'')}</td><td class="num" data-l="Precio">${typeof o.precio==='number'?o.precio.toLocaleString('es-ES'):esc(o.precio||'—')}</td><td class="num" data-l="Dif.">${esc(o.dif==null?'':o.dif)}</td></tr>`;
+const statRow=(name,o)=>`<tr><td class="n">${name}</td><td class="num" data-l="PC">${esc(o.pc)}</td><td data-l="Car.">${esc(o.car)}</td><td class="num" data-l="Dado">${dieTxt(o.die)}</td><td data-l="Requisito">${esc(o.req||'')}</td><td class="num" data-l="Precio">${typeof o.precio==='number'?o.precio.toLocaleString('es-ES'):esc(o.precio||'—')}</td><td class="num" data-l="Dif.">${pct(o.dif)}</td></tr>`;
 // fila desglosada de una habilidad (o de un conjunto incluido dentro de otro), como en el Excel
 function compRow(n,self,txt){
   const s=findSkill(n);if(s)return statRow(link(s,txt),s);
@@ -122,7 +133,7 @@ const compTable=rows=>`<div class="tablewrap"><table class="gt ct"><thead><tr><t
 function suiteCard(c,kind){
   const st=kind==='st';
   const rows=st?parseReq(c.req).map(r=>compRow(r.t,c,r.t)).join(''):(c.comp||[]).map(n=>compRow(n,c)).join('');
-  return `<details class="card" data-n="${esc(norm(c.n+' '+(c.comp||[]).join(' ')+(st?' '+c.req:'')))}"><summary><b>${esc(c.n)}</b><span class="stat">${st?'':`PC <strong>${esc(c.pc)}</strong> · `}${esc(c.car)} · ${dieTxt(c.die)} · <strong>${typeof c.precio==='number'?c.precio.toLocaleString('es-ES'):esc(c.precio||'—')}</strong> po · dif ${esc(c.dif===''||c.dif==null?'—':c.dif)}</span>${st?`<span class="tag">${esc(c.libro)}</span>`:''}</summary>
+  return `<details class="card" data-n="${esc(norm(c.n+' '+(c.comp||[]).join(' ')+(st?' '+c.req:'')))}"><summary><b>${esc(c.n)}</b><span class="stat">${st?'':`PC <strong>${esc(c.pc)}</strong> · `}${esc(c.car)} · ${dieTxt(c.die)} · <strong>${typeof c.precio==='number'?c.precio.toLocaleString('es-ES'):esc(c.precio||'—')}</strong> po · dif. ${pct(c.dif)}</span>${st?`<span class="tag">${esc(c.libro)}</span>`:''}</summary>
   <div class="body">${rows?(st?'<p class="stat">Requisitos del estilo:</p>':'')+compTable(rows):'<p class="help">Sin requisitos.</p>'}${c.clases?`<p class="stat">Clases: ${esc(c.clases)}</p>`:''}</div></details>`}
 $('#conlist').innerHTML='<h3>Conjuntos del grupo</h3>'+D.conjuntos.map(c=>suiteCard(c,'mine')).join('')+'<h3>Conjuntos oficiales</h3>'+D.oficiales.filter(c=>(c.comp||[]).length).map(c=>suiteCard(c,'of')).join('')+'<h3>Estilos de combate</h3>'+D.estilos.map(c=>suiteCard(c,'st')).join('');
 $('#qc').addEventListener('input',e=>{const q=norm(e.target.value).split(/\s+/).filter(Boolean);$$('#conlist .card').forEach(c=>c.hidden=!q.every(w=>c.dataset.n.includes(w)))});
@@ -149,12 +160,12 @@ function renderBuilder(){
   if(pick.length>5)w.push(`Tienes ${pick.length} habilidades: el HJ 4.05 permite un máximo de 5 (los requisitos cuentan).`);
   pick.forEach(s=>s.reqs.forEach(q=>{if(q.s&&!pick.includes(q.s))w.push(`«${s.n}» requiere ${q.s.n}, que no está en el conjunto.`)}));
   if(r&&r.cl==='Sin clase común')w.push('Las habilidades no comparten ninguna clase: el conjunto no lo puede estudiar nadie.');
-  $('#builder').innerHTML=pick.length?`<div class="tablewrap"><table><thead><tr><th>Habilidad</th><th>PC</th><th>Car.</th><th>Dado</th><th>Requisito</th><th>Precio</th><th>Dif.</th><th>Página</th><th></th></tr></thead><tbody>${pick.map((s,i)=>`<tr><td class="n">${link(s)}</td><td class="num">${esc(s.pc)}</td><td>${esc(s.car)}</td><td class="num">${s.die==='*'||s.die==='NA'?esc(s.die):'d'+esc(s.die)}</td><td>${esc(s.req)}</td><td class="num">${esc(s.precio)}</td><td class="num">${esc(s.dif)}</td><td>${pagCell(s)}</td><td><button class="rm" data-rm="${i}" title="Quitar">✕</button></td></tr>`).join('')}</tbody></table></div>
-  <div class="result"><div><small>PC (suma−1)</small><strong>${r.pc}</strong></div><div><small>Característica</small><strong>${esc(r.car)}</strong></div><div><small>Dado</small><strong>${esc(r.die)}</strong></div><div><small>Curso (×1,1)</small><strong>${r.precio} po</strong></div><div><small>Dificultad (máx+5)</small><strong>${r.dif}%</strong></div><div><small>Clases</small><strong style="font-size:15px">${esc(r.cl)}</strong></div></div>
+  $('#builder').innerHTML=pick.length?`<div class="tablewrap"><table><thead><tr><th>Habilidad</th><th>PC</th><th>Car.</th><th>Dado</th><th>Requisito</th><th>Precio</th><th>Dif.</th><th>Página</th><th></th></tr></thead><tbody>${pick.map((s,i)=>`<tr><td class="n">${link(s)}</td><td class="num">${esc(s.pc)}</td><td>${esc(s.car)}</td><td class="num">${s.die==='*'||s.die==='NA'?esc(s.die):'d'+esc(s.die)}</td><td>${esc(s.req)}</td><td class="num">${esc(s.precio)}</td><td class="num">${pct(s.dif)}</td><td>${pagCell(s)}</td><td><button class="rm" data-rm="${i}" title="Quitar">✕</button></td></tr>`).join('')}</tbody></table></div>
+  <div class="result"><div><small>PC (suma−1)</small><strong>${r.pc}</strong></div><div><small>Característica</small><strong>${esc(r.car)}</strong></div><div><small>Dado</small><strong>${esc(r.die)}</strong></div><div><small>Curso (×1,1)</small><strong>${r.precio} po</strong></div><div><small>Dificultad (máx+5)</small><strong>${pct(r.dif)}</strong></div><div><small>Clases</small><strong style="font-size:15px">${esc(r.cl)}</strong></div></div>
   ${w.map(x=>`<div class="warn">⚠ ${esc(x)}</div>`).join('')}${pick.length<=5&&!w.length?'<div class="okk">✓ Cumple las reglas del HJ 4.05.</div>':''}
   <p><button class="ghost" id="copy">Copiar resumen</button></p>`:'<p class="help">Busca y añade habilidades para empezar.</p>';
   $$('#builder [data-rm]').forEach(b=>b.onclick=()=>{pick.splice(+b.dataset.rm,1);renderBuilder()});
-  const cp=$('#copy');if(cp)cp.onclick=()=>{const t=`Conjunto: ${pick.map(s=>s.n).join(', ')}\nPC ${r.pc} · ${r.car} · ${r.die} · ${r.precio} po · dificultad ${r.dif}% · ${r.cl}`;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>cp.textContent='¡Copiado!').catch(()=>prompt('Copia el texto:',t))};
+  const cp=$('#copy');if(cp)cp.onclick=()=>{const t=`Conjunto: ${pick.map(s=>s.n).join(', ')}\nPC ${r.pc} · ${r.car} · ${r.die} · ${r.precio} po · dificultad ${pct(r.dif)} · ${r.cl}`;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>cp.textContent='¡Copiado!').catch(()=>prompt('Copia el texto:',t))};
 }
 $('#clear').onclick=()=>{pick=[];renderBuilder()};
 let hl=0,cur=[];
@@ -215,4 +226,5 @@ $('#glos').innerHTML=`<table class="gt"><thead><tr><th>Sigla</th><th>Libro</th><
 
 
 renderTbl();renderBuilder();
+if(!$('#subtabs').innerHTML&&$('#hab')&&!$('#hab').hidden)tab('hab');
 })();

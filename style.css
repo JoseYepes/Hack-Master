@@ -65,7 +65,7 @@ abbr{text-decoration:underline dotted;cursor:help}
 .leg{display:grid;grid-template-columns:110px 1fr;gap:6px 12px;font-size:14px}.leg dt{font-weight:700}.leg dd{margin:0;color:var(--mut)}
 @media(max-width:720px){
   header{position:static;padding:8px 12px;gap:6px}h1{font-size:18px}h1 span{display:none}
-  nav{order:3;flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}nav button{white-space:nowrap;flex:0 0 auto}
+  nav{order:3;flex:1 1 100%;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}nav button{white-space:nowrap;padding:7px 2px;font-size:14px}
   #theme{margin-left:auto}
   main{padding:10px 12px}
   #filtbtn{display:block}
@@ -113,3 +113,7 @@ abbr{text-decoration:underline dotted;cursor:help}
 @media(max-width:720px){.gtg b{min-width:100%}.dlprev img{width:120px}}
 .card .tablewrap{margin:4px 0 8px}.ct tbody tr{cursor:default}.ct th{position:static;cursor:default}
 @media(max-width:720px){.ct td[data-l]{display:inline-block;margin-right:12px}.ct td[data-l="Requisito"]{display:block}}
+.subtabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.subtabs:empty{display:none}
+.subtabs button{font:inherit;font-size:14px;border:1px solid var(--bd);background:none;color:var(--fg);padding:4px 12px;border-radius:99px;cursor:pointer}.subtabs button.on{background:var(--ac2);border-color:var(--ac2);color:#fff}
+[hidden]{display:none!important}
+@media(max-width:360px){nav button{font-size:13px}}
